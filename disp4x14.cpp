@@ -95,7 +95,11 @@ void disp_set_time_out(uint16_t ta){
   time_out = ta;
 }
 
-
+void update_disp(enum disp_states d_st){
+  disp4x14_str(0, disp_buf[d_st][0]);
+  disp4x14_str(1, disp_buf[d_st][1]);
+  disp4x14_str(2, disp_buf[d_st][2]);
+}
 
 void disp_machine(void){
 
@@ -105,9 +109,7 @@ void disp_machine(void){
 
   switch(disp_state){
     case START_UP:
-      disp4x14_str(0, disp_buf[START_UP][0]);
-      disp4x14_str(1, disp_buf[START_UP][1]);
-      disp4x14_str(2, disp_buf[START_UP][2]);
+      update_disp(disp_state);
       if (time_out == 0){
         disp_state = SENSORS;
       }
@@ -118,6 +120,10 @@ void disp_machine(void){
       disp4x14_float(2, 17.2, 1);
       break;
     case KBD_3X4:
+      update_disp(disp_state);
+      if (time_out == 0){
+        disp_state = SENSORS;
+      }
       break;
   }
 }
@@ -126,7 +132,7 @@ void disp_set_state(enum disp_states d_st){
   disp_state = d_st;
 }
 
-void disp_set_buf( enum disp_states d_st, uint8_t element, char *p){
+void disp_set_buf( enum disp_states d_st, uint8_t element, const char *p){
   strcpy(disp_buf[d_st][element],p);
   uint8_t i;
   for( i = 0;i< ALPHA_DIGITS;i++) {
