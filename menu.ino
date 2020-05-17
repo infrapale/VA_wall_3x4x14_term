@@ -45,18 +45,25 @@ struct MenuEntryStruct menu[] = {
   //  tag   down name        func param
     {"Top","MH1","MH1*", &nop,69},
     {"Top","MH2","MH2*", &nop,42},
-    {"Top","TUP","Tupa", &nop,42},
-    {"---","---","    ", &nop, 0},
+    {"Top","TUP","TUPA", &nop,42},
+    {"Top","WC ","WC *", &nop,42},
+    {"Top","KHH","KHH*", &nop,42},
+    {"Top","ULK","ULK*", &nop,42},
     {"MH1","---","MH11", &nop,69},
     {"MH1","---","MH12", &nop,69},
     {"MH1","---","MH13", &nop,69},
-    {"---","---","    ", &nop, 0},
     {"MH2","---","MH21", &nop,69},
     {"MH2","---","MH22", &nop,69},
-    {"---","---","    ", &nop, 0},
     {"TUP","---","Tup1", &nop,69},
     {"TUP","---","Tup2", &nop,69},
-    {"---","---","    ", &nop, 0},
+    {"TUP","---","PARV", &nop,69},
+    {"WC ","---","WC_K", &nop, 0},
+    {"WC ","---","WC_L", &nop, 0},
+    {"KHH","---","KHH1", &nop, 0},
+    {"KHH","---","KHH2", &nop, 0},
+    {"ULK","---","PIHA", &nop, 0},
+    {"ULK","---","TERA", &nop, 0},
+    {"ULK","---","POLK", &nop, 0},
     {"!!!","---","    ", &nop, 0}    
 };
 
@@ -95,9 +102,11 @@ boolean menu_task(void){
   switch(rotenc_rd_pressed()){
     case 1:
       Serial.println(menu[menu_handle.indx].down);
-      goto_tag(menu[menu_handle.indx].down);
-      Serial.println(menu_handle.indx);
-      update_disp = true;
+      if(strcmp(menu[menu_handle.indx].down,"---") != 0){ 
+        goto_tag(menu[menu_handle.indx].down);
+        Serial.println(menu_handle.indx);
+        update_disp = true;
+      }  
       break;
     case 2: 
       return_tag();
