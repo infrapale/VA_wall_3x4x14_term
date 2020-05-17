@@ -95,6 +95,15 @@ void disp_set_time_out(uint16_t ta){
   time_out = ta;
 }
 
+void disp_set_state(disp_states new_st){
+  disp_state = new_st;
+}
+
+void set_text(uint8_t disp_state, uint8_t indx, char *ptxt){
+   strcpy(disp_buf[disp_state][indx],ptxt);
+}
+    
+
 void update_disp(enum disp_states d_st){
   disp4x14_str(0, disp_buf[d_st][0]);
   disp4x14_str(1, disp_buf[d_st][1]);
@@ -125,12 +134,17 @@ void disp_machine(void){
         disp_state = SENSORS;
       }
       break;
+    case MENU_STATE:
+      Serial.println("MENU_STATE");
+      update_disp(disp_state);
+      if (time_out == 0){
+        disp_state = SENSORS;
+      }
+      break;
+  
   }
 }
 
-void disp_set_state(enum disp_states d_st){
-  disp_state = d_st;
-}
 
 void disp_set_buf( enum disp_states d_st, uint8_t element, const char *p){
   strcpy(disp_buf[d_st][element],p);

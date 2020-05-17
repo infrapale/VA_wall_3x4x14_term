@@ -24,9 +24,8 @@
 #define RFM69_TX_IVAL_100ms  20;
 
    
-#define KBD_NBR_KEYS   12
-#define BTN_NBR_BTNS   3
-
+#define KBD_NBR_KEYS       12
+#define BTN_NBR_BTNS       3
 
 int16_t dec_div[] = {1,10,100,1000,10000};
 
@@ -38,16 +37,40 @@ uint16_t kbd_values[KBD_NBR_KEYS] = {
 };
 uint16_t btn_values[BTN_NBR_BTNS] = {917,707,420};
 
+
+
 TaHa taha_kbd_scan;
 TaHa taha_btn_scan;
+TaHa taha_menu;
 TaHa radio_send_handle;
 TaHa display_handle;
 
-void scan_kbd (void){
+void scan_kbd (void)
+{
   kbd3x4.scan();
 }
-void scan_btn (void){
-  btn4.scan();
+
+void scan_btn(void)
+{
+    btn4.scan();
+}
+
+void menu_handler(void)
+{
+   boolean show_menu = menu_task();
+   if (show_menu){
+      disp_set_state(MENU_STATE);
+      set_text(MENU_STATE, 0, get_menu_name());
+      set_text(MENU_STATE, 1, "On  ");
+      set_text(MENU_STATE, 2, "Off ");
+      Serial.println("menu_handler test");
+      disp_set_time_out(5000);   
+   }
+}
+
+void radio_tx_handler(void)
+{
+  
 }
 
 void setup() {
@@ -56,6 +79,7 @@ void setup() {
   delay(3000);
   Serial.begin(9600);
 
+  menu_init();
   radio_init(RFM69_CS,RFM69_INT,RFM69_RST, RFM69_FREQ);
   radio_send_msg("Telmac Wall Terminal 14-segment");
   disp4x14_init();
@@ -73,9 +97,11 @@ void setup() {
   /*
    * Define task execution
    */
+   
   taha_kbd_scan.set_interval(10,RUN_RECURRING, scan_kbd);
   taha_btn_scan.set_interval(10,RUN_RECURRING, scan_btn);
-  radio_send_handle.set_interval(100,RUN_RECURRING, radio_tx_hanndler);
+  taha_menu.set_interval(100,RUN_RECURRING, menu_handler);
+  radio_send_handle.set_interval(100,RUN_RECURRING, radio_tx_handler);
   display_handle.set_interval(1000,RUN_RECURRING, disp_machine);
  
 }
@@ -85,6 +111,7 @@ void loop() {
   
   taha_kbd_scan.run();
   taha_btn_scan.run();
+  taha_menu.run();
   radio_send_handle.run();
   display_handle.run();
   
