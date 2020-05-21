@@ -1,9 +1,7 @@
 #include "light_msg.h"
 #include "disp4x14.h"
 
-#define CODE_LEN      6
-#define ZONE_LEN      4
-#define FUNC_LEN      4
+
 #define MSG_BUF_LEN 32
 #define MSG_BUF_LEN_MASK 0b00011111;
 
@@ -16,7 +14,11 @@ struct msg_buf_struct {
 byte buf_wr_indx;
 byte buf_rd_indx;
 
-
+/**
+ * @brief
+ * @param
+ * @retval
+ */
 void init_light_msg(void){
      // clear code and zone buffers
     for(uint8_t i=0;i<MSG_BUF_LEN; i++){
@@ -28,7 +30,11 @@ void init_light_msg(void){
     buf_rd_indx = 0;
 
 }
-
+/**
+ * @brief Run action based on key
+ * @param
+ * @retval
+ */
 void act_on_kbd3x4(char btn){
     switch(btn){
        case '0': add_code("MH2","RWC_2","T"); 
@@ -72,7 +78,12 @@ void act_on_kbd3x4(char btn){
 }
 
 
-void add_code(const char *new_zone, const char *new_code, const char *new_func){
+/**
+ * @brief  Add light control codes to buffer
+ * @param
+ * @retval
+ */
+ void add_code(const char *new_zone, const char *new_code, const char *new_func){
     int i;
     for(i = 0; i < CODE_LEN; i++) {
         if (new_code[i] != 0) { 
@@ -101,16 +112,20 @@ void add_code(const char *new_zone, const char *new_code, const char *new_func){
     buf_wr_indx = ++buf_wr_indx & MSG_BUF_LEN_MASK;   
 }
 
-
+/**
+ * @brief Send light control message over radio
+ * @param
+ * @retval
+ */
 void radiate_msg( const char *zone, const char *relay_addr, char *func ) {
     char rf69_packet[RH_RF69_MAX_MESSAGE_LEN];
     if (json_char_array(rf69_packet, RH_RF69_MAX_MESSAGE_LEN, zone, relay_addr, func, "") > 0)
     {
       radio_send_msg(rf69_packet);
       Serial.println(rf69_packet);
-      disp_set_buf( KBD_3X4, 0, zone);
-      disp_set_buf( KBD_3X4, 1, relay_addr+1);
-      disp_set_buf( KBD_3X4, 2, func);
+      disp_set_text( KBD_3X4, 0, zone);
+      disp_set_text( KBD_3X4, 1, relay_addr+1);
+      disp_set_text( KBD_3X4, 2, func);
       disp_set_state(KBD_3X4);
       disp_set_time_out(5);
      
@@ -120,8 +135,12 @@ void radiate_msg( const char *zone, const char *relay_addr, char *func ) {
       Serial.println("RFM69 message length was exceeded"); 
     }
 }
-
-void radio_tx_hanndler(void){
+/**
+ * @brief  Task activating radio transmission
+ * @param
+ * @retval
+ */
+void radio_tx_handler(void){
     if (msg_buf[buf_rd_indx].code[0] != 0){
         radiate_msg( msg_buf[buf_rd_indx].zone, msg_buf[buf_rd_indx].code, msg_buf[buf_rd_indx].func);
         Serial.print(msg_buf[buf_rd_indx].zone); 

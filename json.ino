@@ -1,22 +1,15 @@
-/*String JsonRelayString(const char *zone, const char *addr, const char *value, const char *remark ){
-    String JsonString; 
-    JsonString = "{\"Z\":\"";
-    JsonString += zone;
-    JsonString += "\",";
-    JsonString += "\"S\":\"";
-    JsonString += addr;  
-    JsonString += "\",";
-    JsonString += "\"V\":\"";
-    JsonString += value;
-    JsonString += "\",";
-    JsonString += "\"R\":\"";
-    JsonString += remark;
-    JsonString += "\"}";
 
-    return(JsonString);
-}
-*/
-
+/**
+ * @brief Build light control json message
+ * @param p  = pointer to return value (char array)
+ * @param max_len
+ * @param zone char pointer
+ * @param addr char pointer
+ * @param value char pointer
+ * @param remark char pointer
+ * @retval *p  = pointer to return value (char array)
+ * @retval char array len
+ */
 uint8_t json_char_array(char *p, const uint8_t max_len, const char *zone, const char *addr, const char *value, const char *remark) {
      if (max_len >= strlen(zone)+strlen(addr)+strlen(value)+strlen(remark)){
        strcpy(p,"{\"Z\":\"");

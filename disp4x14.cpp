@@ -25,6 +25,11 @@ enum disp_states disp_state;
 //Adafruit_AlphaNum4 alpha4 = Adafruit_AlphaNum4();
 alpha4_struct disp[ALPHA_ELEMENTS];
 
+/**
+ * @brief Initialize 14 segment display
+ * @param -
+ * @retval -
+ */
 void disp4x14_init(void){
   
   for (uint8_t element = 0; element < ALPHA_ELEMENTS; element++){
@@ -41,7 +46,12 @@ void disp4x14_init(void){
   strcpy(disp_buf[START_UP][2],"2020");
 
 }
-
+/**
+ * @brief Show 4 characters on a 4x14 segment element
+ * @param element = display element index
+ * @param c_arr = pointer to charater array
+ * @retval
+ */
 void disp4x14_str(int8_t element, const char *c_arr){
   disp[element].alpha4.clear();
   //disp[element].alpha4.setBrightness(50);
@@ -54,7 +64,13 @@ void disp4x14_str(int8_t element, const char *c_arr){
   }
   disp[element].alpha4.writeDisplay();
 } 
-
+/**
+ * @brief  Show float value on a 4x14 segment element
+ * @param  element = element index
+ * @param  fval = value to display
+ * @param  decimals = number of decimals
+ * @retval
+ */
 void disp4x14_float(int8_t element, float fval, uint8_t decimals){
   char buf[12];
   dtostrf(fval, 2, decimals, buf);
@@ -90,26 +106,49 @@ void disp4x14_float(int8_t element, float fval, uint8_t decimals){
   }
   disp[element].alpha4.writeDisplay();
 } 
-
+/**
+ * @brief  Set timeout for current display state
+ * @param  ta = time out seconds
+ * @retval -
+ */
 void disp_set_time_out(uint16_t ta){
-  time_out = ta;
+  time_out = ta * (1000/DISP_UPD_IVAL) ;
 }
-
+/**
+ * @brief  set display state
+ * @param  new_st = display index
+ * @retval -
+ */
 void disp_set_state(disp_states new_st){
   disp_state = new_st;
 }
-
-void set_text(uint8_t disp_state, uint8_t indx, char *ptxt){
+/**
+ * @brief  Copy text to state specific char array
+ * @param  disp_state
+ * @param  indx = display element index
+ * @param  ptxt = pointer to char array 
+ * @retval -
+ */
+void disp_set_text(uint8_t disp_state, uint8_t indx, const char *ptxt){
    strcpy(disp_buf[disp_state][indx],ptxt);
 }
     
-
+/**
+ * @brief  Update disply from the state specific char arrays
+ * @param  d_st = display state
+ * @retval
+ */
 void update_disp(enum disp_states d_st){
   disp4x14_str(0, disp_buf[d_st][0]);
   disp4x14_str(1, disp_buf[d_st][1]);
   disp4x14_str(2, disp_buf[d_st][2]);
 }
-
+/**
+ * @brief Display machine is called from the scheduler
+ *        Show state specific information 
+ * @param  -
+ * @retval -
+ */
 void disp_machine(void){
 
   if (time_out > 0) {
@@ -135,7 +174,6 @@ void disp_machine(void){
       }
       break;
     case MENU_STATE:
-      Serial.println("MENU_STATE");
       update_disp(disp_state);
       if (time_out == 0){
         disp_state = SENSORS;
@@ -145,8 +183,12 @@ void disp_machine(void){
   }
 }
 
-
-void disp_set_buf( enum disp_states d_st, uint8_t element, const char *p){
+/**
+ * @brief
+ * @param
+ * @retval
+ */
+void xxxdisp_set_buf( enum disp_states d_st, uint8_t element, const char *p){
   strcpy(disp_buf[d_st][element],p);
   uint8_t i;
   for( i = 0;i< ALPHA_DIGITS;i++) {

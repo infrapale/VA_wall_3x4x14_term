@@ -1,3 +1,6 @@
+/*
+ * Menu structure controlled by a rotary encoder
+ */
 
 #define MENU_TAG_LEN       4
 #define MENU_DISP_LEN      5
@@ -5,6 +8,7 @@
 #define ROT_DIR           -1
 
 #include "rotenc.h"
+#include "light_msg.h"
 
 enum enDigitalPins
 {
@@ -21,6 +25,8 @@ struct MenuEntryStruct {
   char tag[MENU_TAG_LEN];
   char down[MENU_TAG_LEN];
   char name[5];
+  char zone[4];
+  char relay[6];
   pMenuFunc func;
   int param;
 };
@@ -40,33 +46,51 @@ uint8_t menu_stack_ptr = 0;
 uint16_t menu_cursor;
 static MenuPtrStruct menu_handle;
 
-
+/**
+ * Menu Structure
+ * - function callback is not yet in use
+ */
 struct MenuEntryStruct menu[] = {
-  //  tag   down name        func param
-    {"Top","MH1","MH1*", &nop,69},
-    {"Top","MH2","MH2*", &nop,42},
-    {"Top","TUP","TUPA", &nop,42},
-    {"Top","WC ","WC *", &nop,42},
-    {"Top","KHH","KHH*", &nop,42},
-    {"Top","ULK","ULK*", &nop,42},
-    {"MH1","---","MH11", &nop,69},
-    {"MH1","---","MH12", &nop,69},
-    {"MH1","---","MH13", &nop,69},
-    {"MH2","---","MH21", &nop,69},
-    {"MH2","---","MH22", &nop,69},
-    {"TUP","---","Tup1", &nop,69},
-    {"TUP","---","Tup2", &nop,69},
-    {"TUP","---","PARV", &nop,69},
-    {"WC ","---","WC_K", &nop, 0},
-    {"WC ","---","WC_L", &nop, 0},
-    {"KHH","---","KHH1", &nop, 0},
-    {"KHH","---","KHH2", &nop, 0},
-    {"ULK","---","PIHA", &nop, 0},
-    {"ULK","---","TERA", &nop, 0},
-    {"ULK","---","POLK", &nop, 0},
-    {"!!!","---","    ", &nop, 0}    
+  //  tag   down name    zone relay     func param
+    {"Top","K  ","K*  ", "---", "-----", &nop,69},
+    {"Top","MH1","MH1*", "---", "-----", &nop,69},
+    {"Top","MH2","MH2*", "---", "-----", &nop,42},
+    {"Top","TUP","TUP*", "---", "-----", &nop,42},
+    {"Top","WC ","WC *", "---", "-----", &nop,42},
+    {"Top","KHH","KHH*", "---", "-----", &nop,42},
+    {"Top","ULK","ULK*", "---", "-----",  &nop,42},
+    {"K  ","---","K_1 ", "MH1", "RKOK1", &nop,42},
+    {"K  ","---","K_2 ", "MH1", "RKOK2", &nop,42},
+    {"K  ","---","K_3 ", "MH1", "RKOK3", &nop,42},
+    {"K  ","---","POY1", "MH1", "RKOK4", &nop,42},
+    {"K  ","---","POY2", "MH1", "RKOK5", &nop,42},
+    {"MH1","---","MH11", "MH1", "RMH11", &nop,69},
+    {"MH1","---","MH12", "MH1", "RMH12", &nop,69},
+    {"MH1","---","MH13", "MH1", "RMH13", &nop,69},
+    {"MH2","---","MH21", "MH2", "RMH21", &nop,69},
+    {"MH2","---","MH22", "MH2", "RMH22", &nop,69},
+    {"TUP","---","TUP1", "TK1", "RTUP1", &nop,69},
+    {"TUP","---","TUP2", "TK1", "RTUP1", &nop,69},
+    {"TUP","---","PARV", "TK1", "RPARV", &nop,69},
+    {"TUP","---","ET  ", "MH2", "RET_1", &nop,69},
+    {"TUP","---","TK  ", "MH2", "RTK_1", &nop,69},    
+    {"WC ","---","WC_K", "TK1", "RWC_1", &nop, 0},
+    {"WC ","---","WC_L", "MH2", "RWC_2", &nop, 0},
+    {"KHH","---","KHH1", "TK1", "RKHH1", &nop, 0},
+    {"KHH","---","KHH2", "MH2", "RKHH2", &nop, 0},
+    {"KHH","---","PESH", "MH2", "RPSH1", &nop, 0},
+    {"KHH","---","SAUN", "TK1", "RSAUN", &nop, 0},
+    {"ULK","---","PIHA", "TK1", "RPIHA", &nop, 0},
+    {"ULK","---","TERA", "TK1", "RTERA", &nop, 0},
+    {"ULK","---","POLK", "TK1", "RPOLK", &nop, 0},
+    {"!!!","---","    ", "---", "-----", &nop, 0}    
 };
 
+/**
+ * @brief  Initilaize menu structure
+ * @param -
+ * @retval -
+ */
 void menu_init(void){
     Serial.println("menu_init");
     menu_stack[0] = 0;
@@ -87,13 +111,18 @@ void menu_init(void){
 
     // menu[0].func(menu[0].param);
 }
-
-boolean menu_task(void){
+/**
+ * @brief  Menu task called by the scheduler
+ * @param
+ * @retval
+ */
+boolean menu_task(char on_off_ret){
   boolean update_disp = false;
   menu_handle.indx = rotenc_get_pos();
   if ( menu_handle.indx != menu_handle.last_indx){
     menu_handle.last_indx = menu_handle.indx;
     update_disp = true;
+    Serial.print("menu_task: ");
     Serial.print(menu_handle.indx);Serial.print(", ");
     Serial.print(menu[menu_handle.indx].tag);Serial.print(", ");
     Serial.print(menu[menu_handle.indx].down);
@@ -114,10 +143,58 @@ boolean menu_task(void){
       update_disp = true;
       break;  
   }
+  switch(on_off_ret){
+    case '0':   // OFF
+      switch_lights("0");
+      update_disp = true;
+      break;
+    case '1':   // ON
+      switch_lights("1");
+      update_disp = true;
+      break;  
+  }
   return update_disp;
-
 }
 
+void switch_lights(char *func){
+   char tag[MENU_TAG_LEN];
+   char down[MENU_TAG_LEN];
+   uint16_t i;
+   
+   strcpy(tag,menu[menu_handle.indx].down);
+   //strcpy(down,menu[menu_handle.indx].down);
+   Serial.println("switch_lights:");
+   Serial.print("tag: "); Serial.println(tag);
+   //Serial.print("down: ");Serial.println(down);   
+   if (strcmp(tag, "---") == 0) {
+      // not a group code
+      Serial.println("individual control:");
+      add_code(menu[menu_handle.indx].zone,menu[menu_handle.indx].relay,func);
+   }
+   else {
+       Serial.println("iterative control:");
+       Serial.print(menu_handle.indx); Serial.print("-");
+       Serial.print(menu_handle.total_nbr); Serial.print("-");
+       for (i = menu_handle.indx; i <= menu_handle.total_nbr; i++){
+           if ( strcmp(menu[i].tag, tag) == 0 ){
+               Serial.print("iterating: ");
+               add_code(menu[i].zone,menu[i].relay,func);
+               Serial.print(i); Serial.print("-");
+               Serial.print(menu[i].zone); Serial.print("-");
+               Serial.print(menu[i].relay); Serial.print("-");
+               Serial.print(func); Serial.println();
+                
+           }
+       }
+       
+   }
+}
+
+/**
+ * @brief
+ * @param
+ * @retval
+ */
 void set_pos_indx(uint16_t pindx){
   if (pindx < menu_handle.total_nbr){
     menu_handle.indx = pindx;
@@ -161,13 +238,21 @@ void set_pos_indx(uint16_t pindx){
   }
 }
 
-
+/**
+ * @brief
+ * @param
+ * @retval
+ */
 char *get_menu_name(void )
 {
   return menu[menu_handle.indx].name;  
 }
 
-
+/**
+ * @brief
+ * @param
+ * @retval
+ */
 void goto_tag(char *tag_x){
   uint16_t i = 0;  //look from start
    bool  done = false;
@@ -197,6 +282,11 @@ void goto_tag(char *tag_x){
    }
 }
 
+/**
+ * @brief
+ * @param
+ * @retval
+ */
 void return_tag(){
     Serial.print("return_tag: ");
     Serial.print(menu_stack_ptr);
@@ -212,7 +302,11 @@ void return_tag(){
     }
 }
 
-
+/**
+ * @brief
+ * @param
+ * @retval
+ */
 uint16_t find_menu_tag( struct MenuEntryStruct *menu, struct MenuPtrStruct *m_handle, char *tag){
     uint8_t ph = 0;  // find_fist, find_last
     uint16_t i = 0;
@@ -276,7 +370,11 @@ uint16_t find_menu_tag( struct MenuEntryStruct *menu, struct MenuPtrStruct *m_ha
     
     return(m_handle->nbr);
 }
-
+/**
+ * @brief
+ * @param
+ * @retval
+ */
 void nop(int x)
 {
     Serial.println(x);
