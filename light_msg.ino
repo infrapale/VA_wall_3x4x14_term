@@ -36,45 +36,50 @@ void init_light_msg(void){
  * @retval
  */
 void act_on_kbd3x4(char btn){
+    char func[2] ="1";
+    if (btn & 0b10000000)
+    {
+       func[0] = '0';
+       btn = btn & 0b01111111; 
+    }
     switch(btn){
-       case '0': add_code("MH2","RWC_2","T"); 
+       case '0': add_code("MH2","RWC_2",func); 
                  break;        
-       case '1': add_code("MH2","RET_1","T"); 
+       case '1': add_code("MH2","RET_1",func); 
                  break;
-       case '2': add_code("TK1","RPOLK","T"); 
+       case '2': add_code("TK1","RPOLK",func); 
                  break;
-       case '3': add_code("MH2","RMH21","T"); 
-                 add_code("MH2","RMH22","T"); 
+       case '3': add_code("MH2","RMH21",func); 
+                 add_code("MH2","RMH22",func); 
                  break;     
-       case '4': add_code("TK1","RPARV","T"); 
+       case '4': add_code("TK1","RPARV",func); 
                  break;   
-       case '5': add_code("MH1","RMH11","T"); 
-                 add_code("MH1","RMH12","T"); 
-                 add_code("MH1","RMH13","T"); 
+       case '5': add_code("MH1","RMH11",func); 
+                 add_code("MH1","RMH12",func); 
+                 add_code("MH1","RMH13",func); 
                  break;   
-       case '6': add_code("MH2","RKHH2","T"); 
-                 add_code("MH2","RPSH1","T");
+       case '6': add_code("MH2","RKHH2",func); 
+                 add_code("MH2","RPSH1",func);
                  break;   
-       case '7': add_code("TK1","RTUP1","T"); 
-                 add_code("TK1","RTUP2","T");
+       case '7': add_code("TK1","RTUP1",func); 
+                 add_code("TK1","RTUP2",func);
                  break;   
-       case '8': add_code("MH1","RKOK1","T"); 
-                 add_code("MH1","RKOK2","T"); 
-                 add_code("MH1","RKOK3","T"); 
-                 add_code("MH1","RKOK4","T"); 
-                 add_code("MH1","RKOK5","T"); 
+       case '8': add_code("MH1","RKOK1",func); 
+                 add_code("MH1","RKOK2",func); 
+                 add_code("MH1","RKOK3",func); 
+                 add_code("MH1","RKOK4",func); 
+                 add_code("MH1","RKOK5",func); 
                   break;   
        case '9': add_code("MH1","xxxxx","1"); break;   
        case '*': add_code("MH1","*.OFF","0"); 
                  add_code("MH2","*.OFF","0");
                  add_code("TK1","*.OFF","0");
                  break;   
-       case '#': add_code("MH1","RKOK3","T"); 
-                 add_code("MH1","RKOK4","T"); 
-                 add_code("MH1","RKOK5","T"); 
+       case '#': add_code("MH1","RKOK3",func); 
+                 add_code("MH1","RKOK4",func); 
+                 add_code("MH1","RKOK5",func); 
                  break;   
     }  
-  
 }
 
 

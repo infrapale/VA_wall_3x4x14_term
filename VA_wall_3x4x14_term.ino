@@ -107,6 +107,7 @@ void setup() {
   init_light_msg();
   
   kbd3x4.set_nbr_keys(KBD_NBR_KEYS);
+  kbd3x4.enable_on_off(true);
   btn4.set_nbr_keys(BTN_NBR_BTNS);
   for(uint8_t i = 0;i < KBD_NBR_KEYS; i++){ 
       kbd3x4.set_aval(i, kbd_values[i]);
