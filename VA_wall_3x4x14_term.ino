@@ -42,13 +42,14 @@ uint16_t kbd_values[KBD_NBR_KEYS] = {
   52,92,132,198,312,413,550,699,788,871,936,967
 };
 uint16_t btn_values[BTN_NBR_BTNS] = {707,917,420};
-
+float sensor_value[3] = { 24.1, -5.5, 4.5 };  //indoor -outdoor -water
 
 // Task handler definitions
 TaHa taha_kbd_scan;
 TaHa taha_btn_scan;
 TaHa taha_menu;
 TaHa radio_send_handle;
+TaHa radio_receive_handle;
 TaHa display_handle;
 /**
  * @brief  Scan Analog Keyboard, pressed keys are stored in object buffer
@@ -99,7 +100,7 @@ menu_handler(void)
 void setup() {
   delay(3000);
   Serial.begin(9600);
-
+  Serial.println("VA_wall_3x4x14_term");
   menu_init();
   radio_init(RFM69_CS,RFM69_INT,RFM69_RST, RFM69_FREQ);
   radio_send_msg("Telmac Wall Terminal 14-segment");
@@ -124,6 +125,7 @@ void setup() {
   taha_btn_scan.set_interval(10,RUN_RECURRING, scan_btn);
   taha_menu.set_interval(100,RUN_RECURRING, menu_handler);
   radio_send_handle.set_interval(500,RUN_RECURRING, radio_tx_handler);
+  radio_receive_handle.set_interval(500,RUN_RECURRING, radio_rx_handler);
   display_handle.set_interval(DISP_UPD_IVAL ,RUN_RECURRING, disp_machine);
  
 }
@@ -139,6 +141,7 @@ void loop() {
   taha_btn_scan.run();
   taha_menu.run();
   radio_send_handle.run();
+  radio_receive_handle.run();
   display_handle.run();
   
   btn = kbd3x4.read();

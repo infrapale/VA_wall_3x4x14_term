@@ -9,6 +9,7 @@
 #include "disp4x14.h"
 
 uint8_t alpha_i2c_addr[ALPHA_ELEMENTS] ={0x70,0x71,0x72};
+extern float sensor_value[3];
 
 struct alpha4_struct {
    Adafruit_AlphaNum4 alpha4;
@@ -31,7 +32,7 @@ alpha4_struct disp[ALPHA_ELEMENTS];
  * @retval -
  */
 void disp4x14_init(void){
-  
+  Serial.println("disp4x14_init");
   for (uint8_t element = 0; element < ALPHA_ELEMENTS; element++){
     disp[element].alpha4.begin(alpha_i2c_addr[element]); 
     //Serial.print("14 Segment test element: ");
@@ -53,16 +54,16 @@ void disp4x14_init(void){
  * @retval
  */
 void disp4x14_str(int8_t element, const char *c_arr){
-  disp[element].alpha4.clear();
-  //disp[element].alpha4.setBrightness(50);
-  uint8_t i = 0;
-  //Serial.println(c_arr);
-  while((i < ALPHA_DIGITS) && (c_arr[i] != 0))
-  {
-      disp[element].alpha4.writeDigitAscii(i,c_arr[i] ,false);   
-      i++;   
-  }
-  disp[element].alpha4.writeDisplay();
+    disp[element].alpha4.clear();
+    //disp[element].alpha4.setBrightness(50);
+    uint8_t i = 0;
+    //Serial.println(c_arr);
+    while((i < ALPHA_DIGITS) && (c_arr[i] != 0))
+    {
+        disp[element].alpha4.writeDigitAscii(i,c_arr[i] ,false);   
+        i++;   
+    }
+    disp[element].alpha4.writeDisplay();
 } 
 /**
  * @brief  Show float value on a 4x14 segment element
@@ -92,6 +93,11 @@ void disp4x14_float(int8_t element, float fval, uint8_t decimals){
   {
     disp[element].alpha4.writeDigitAscii(disp_indx, '+',false);
   }
+  if (abs(fval) < 10.0) 
+  {
+      disp[element].alpha4.writeDigitAscii(++disp_indx, ' ',false);
+  }
+
   while((++disp_indx < ALPHA_DIGITS) &&
         (buf_indx < strlen(buf))){
     if (buf_indx == dec_pos) {
@@ -163,9 +169,9 @@ void disp_machine(void){
       }
       break;
     case SENSORS:
-      disp4x14_float(0, 23.1, 1);
-      disp4x14_float(1, 18.4, 1);
-      disp4x14_float(2, 17.2, 1);
+      disp4x14_float(0, sensor_value[0], 1);
+      disp4x14_float(1, sensor_value[1], 1);
+      disp4x14_float(2, sensor_value[2], 1);
       break;
     case KBD_3X4:
       update_disp(disp_state);
@@ -181,22 +187,4 @@ void disp_machine(void){
       break;
   
   }
-}
-
-/**
- * @brief
- * @param
- * @retval
- */
-void xxxdisp_set_buf( enum disp_states d_st, uint8_t element, const char *p){
-  strcpy(disp_buf[d_st][element],p);
-  uint8_t i;
-  for( i = 0;i< ALPHA_DIGITS;i++) {
-    if (i < strlen(p)){
-       disp_buf[d_st][element][i] = p[i];
-    }
-    else {
-      disp_buf[d_st][element][i] = ' ';
-    }
-  }  
 }
