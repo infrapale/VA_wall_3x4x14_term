@@ -1,5 +1,4 @@
-#define ALPHA_DIGITS   4 
-#define ALPHA_ELEMENTS 3 
+
 #include <stdio.h>
 #include <string.h>
 #include <avr/dtostrf.h>
@@ -57,10 +56,18 @@ void disp4x14_str(int8_t element, const char *c_arr){
     disp[element].alpha4.clear();
     //disp[element].alpha4.setBrightness(50);
     uint8_t i = 0;
+    boolean add_dot;
     //Serial.println(c_arr);
     while((i < ALPHA_DIGITS) && (c_arr[i] != 0))
     {
-        disp[element].alpha4.writeDigitAscii(i,c_arr[i] ,false);   
+        if((c_arr[i]=='.')||(c_arr[i]==',')) 
+        {
+            add_dot = true; 
+        }
+        else
+        {   add_dot = false;
+        }
+        disp[element].alpha4.writeDigitAscii(i,c_arr[i] ,add_dot);   
         i++;   
     }
     disp[element].alpha4.writeDisplay();
@@ -106,6 +113,7 @@ void disp4x14_float(int8_t element, float fval, uint8_t decimals){
     else {
       put_dot = false;
     }
+    
     disp[element].alpha4.writeDigitAscii(disp_indx,buf[buf_indx] ,put_dot);
      buf_indx++;
     if (put_dot) buf_indx++;
@@ -185,6 +193,12 @@ void disp_machine(void){
         disp_state = SENSORS;
       }
       break;
+    case RADIO_MSG_STATE:
+      update_disp(disp_state);
+      if (time_out == 0){
+        disp_state = SENSORS;
+      }
+      break;  
   
   }
 }

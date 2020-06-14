@@ -31,7 +31,14 @@
    
 #define KBD_NBR_KEYS       12
 #define BTN_NBR_BTNS       3
+#define LDR_PIN            A2
 
+
+struct sensors_struct {
+    uint8_t light_val;
+};
+
+sensors_struct sensor;
 
 int16_t dec_div[] = {1,10,100,1000,10000};
 
@@ -51,6 +58,7 @@ TaHa taha_menu;
 TaHa radio_send_handle;
 TaHa radio_receive_handle;
 TaHa display_handle;
+TaHa local_sensor_handle;
 /**
  * @brief  Scan Analog Keyboard, pressed keys are stored in object buffer
  * @param  -
@@ -91,6 +99,12 @@ menu_handler(void)
    }
 }
 
+void read_local_sensors(void)
+{
+     sensor.light_val = map(analogRead(LDR_PIN),0,1023,0,100); 
+     Serial.println(sensor.light_val);    
+}
+
 
 /**
  * @brief Arduino setup function
@@ -127,6 +141,8 @@ void setup() {
   radio_send_handle.set_interval(500,RUN_RECURRING, radio_tx_handler);
   radio_receive_handle.set_interval(500,RUN_RECURRING, radio_rx_handler);
   display_handle.set_interval(DISP_UPD_IVAL ,RUN_RECURRING, disp_machine);
+  local_sensor_handle.set_interval(5000,RUN_RECURRING, read_local_sensors);
+
  
 }
 /**
@@ -143,6 +159,7 @@ void loop() {
   radio_send_handle.run();
   radio_receive_handle.run();
   display_handle.run();
+  local_sensor_handle.run();
   
   btn = kbd3x4.read();
   if (btn) {

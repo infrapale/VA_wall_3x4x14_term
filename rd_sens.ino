@@ -33,6 +33,7 @@ void parse_msg(char *rad_msg){
    int attr_end[MSG_ATTRIBUTES];
    String attributes[MSG_ATTRIBUTES];
    String msg_str;
+   uint8_t i;
 
    
    msg_str = rad_msg;
@@ -70,6 +71,7 @@ void parse_msg(char *rad_msg){
          Serial.println(attributes[i]);
        }
      }
+     
    }
    else {
      Serial.println("Missing JSON tags");
@@ -94,6 +96,15 @@ void parse_msg(char *rad_msg){
                sensor_value[match_indx] = attributes[2].toFloat();
            }    
        }
+     for (i = 0; i < 3; i++)
+     {
+        attributes[i].toUpperCase();
+        attributes[i].toCharArray(disp_buf[RADIO_MSG_STATE][i],5);
+     }
+     disp_set_state(RADIO_MSG_STATE);
+     disp_set_time_out(5000);
+     //disp_buf[d_st][0]
+
    }
    //Serial.println(msg_str.indexOf("{\"Z\":"));
    //Serial.println(msg_str.indexOf("\"S\":"));

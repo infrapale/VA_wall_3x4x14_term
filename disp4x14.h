@@ -1,15 +1,20 @@
 #ifndef __DISP4X14_H__
 #define __DISP4X14_H__
 #include "Adafruit_LEDBackpack.h"
-
+#define ALPHA_DIGITS   4 
+#define ALPHA_ELEMENTS 3 
 #define DISP_UPD_IVAL      100  //ms
 enum disp_states{
   START_UP,
   SENSORS,
   KBD_3X4,
   MENU_STATE,
+  RADIO_MSG_STATE,
   LAST_STATE
 };
+
+extern char disp_buf[LAST_STATE][ALPHA_ELEMENTS][5];
+extern enum disp_states disp_state;
 
 void disp4x14_init(void);
 void disp4x14_str(int8_t element, const char *c_arr);
