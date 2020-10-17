@@ -102,7 +102,7 @@ void parse_msg(char *rad_msg){
         attributes[i].toCharArray(disp_buf[RADIO_MSG_STATE][i],5);
      }
      disp_set_state(RADIO_MSG_STATE);
-     disp_set_time_out(5000);
+     disp_set_time_out(5);
      //disp_buf[d_st][0]
 
    }

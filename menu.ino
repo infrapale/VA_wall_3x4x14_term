@@ -6,9 +6,12 @@
 #define MENU_DISP_LEN      5
 #define MENU_STACK_DEPTH   8
 #define ROT_DIR           -1
+#define MAX_BTN            4
 
-#include "rotenc.h"
+#include "rotenc.h"      // library class
+#include "rot_enc.h"     // private enhancement
 #include "light_msg.h"
+#include "Pin_Button.h"
 
 enum enDigitalPins
 {
@@ -16,8 +19,13 @@ enum enDigitalPins
   dpInEncoderA=5,
   dpInEncoderB=6,
   dpInEncoderC=9,
+  dpInButtnOn=10,
+  dpInButtnOff=11,
+  dpInButtnRet=12,
+  dpInButtnFree=13
 };
 
+PinBtn butn[MAX_BTN];
  
 typedef void (*pMenuFunc)(int);
 
@@ -93,6 +101,14 @@ struct MenuEntryStruct menu[] = {
  */
 void menu_init(void){
     Serial.println("menu_init");
+    rotenc_init(dpInEncoderA, dpInEncoderB, dpInEncoderC);
+    rotenc_set_step(0, 0, 10, 1);
+    butn[0].Init(dpInButtnOn,'1');
+    butn[1].Init(dpInButtnOff,'0');
+    butn[2].Init(dpInButtnRet,'R');
+    butn[3].Init(dpInButtnFree,'X');
+    menu_stack[0] = 0; 
+    menu[0].func(menu[0].param);
     menu_stack[0] = 0;
     menu_cursor = 0;
     menu_handle.first = 0;
@@ -103,7 +119,7 @@ void menu_init(void){
     menu_handle.indx = 0;
     menu_handle.indx = menu_handle.last_indx;
     
-    rotenc_init(dpInEncoderA, dpInEncoderB, dpInEncoderC);
+    init_rot_enc();
     set_pos_indx(0);
     // int position = rotenc_get_pos();
     //uint8_t pressed = rotenc_rd_pressed();
@@ -111,6 +127,12 @@ void menu_init(void){
 
     // menu[0].func(menu[0].param);
 }
+
+
+void init_rot_enc(void){
+
+}
+
 /**
  * @brief  Menu task called by the scheduler
  * @param
