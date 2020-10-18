@@ -159,7 +159,7 @@ void loop() {
   radio_send_handle.run();
   radio_receive_handle.run();
   display_handle.run();
-  //local_sensor_handle.run();
+  local_sensor_handle.run();
   
   btn = kbd3x4.read();
   if (btn) {
